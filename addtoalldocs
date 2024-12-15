@@ -1,0 +1,38 @@
+const express = require('express');
+const admin = require('firebase-admin');
+const app = express();
+
+// Initialize Firestore (Use proper Firebase Admin SDK initialization in your environment)
+const db = admin.firestore();
+
+app.post("/updatecollectionfields", async (req, res) => {
+    try {
+        // Reference to the collection you want to update
+        const collectionRef = db.collection('exampleCollection'); // Replace with your collection name
+        const snapshot = await collectionRef.get();
+
+        // Use Firestore's batch functionality to perform bulk updates
+        const batch = db.batch();
+
+        snapshot.forEach(doc => {
+            batch.update(doc.ref, { 
+                additionalField: 1, // New field to add or update
+                userFlag: true      // Example: A boolean flag
+            });
+        });
+
+        // Commit all updates in a single batch operation
+        await batch.commit();
+
+        res.status(200).json({ message: 'Fields successfully updated across all documents.' });
+    } catch (error) {
+        console.error("Error during bulk update:", error);
+        res.status(500).json({ error: 'Failed to update documents. Please try again.' });
+    }
+});
+
+// Start the server (Port configured via environment variables)
+const PORT = process.env.APP_PORT || 5000; // Change `APP_PORT` to match your .env variable
+app.listen(PORT, () => {
+    console.log(`Service is running on port ${PORT}`);
+});
