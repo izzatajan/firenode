@@ -1,0 +1,25 @@
+const productsData = [
+  {
+    id: "aminoacid",
+    title: "Amino Acid",
+    price: 10
+  },
+  {
+    id: "appleacider",
+    title: "Apple acider",
+    price: 12
+  }
+]
+
+async function copyCollection() {
+  try {
+    const collectionRef = collection(db, "products");
+    const promises = productsData.map((item) =>
+      setDoc(doc(collectionRef, item.id), item)
+    );
+    await Promise.all(promises);
+    console.log("Data successfully added to Firestore!");
+  } catch (error) {
+    console.error("Error adding data to Firestore:", error);
+  }
+}
